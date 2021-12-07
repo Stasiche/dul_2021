@@ -9,12 +9,14 @@ from torch import tanh, mean
 
 
 class CNF(nn.Module):
-    def __init__(self, inp_dim, hidden_dim, width, t1=10):
+    def __init__(self, inp_dim, hidden_dim, width, t1=10, tol=1e-5):
         super().__init__()
+        self.inp_dim = inp_dim
         self.width = width
         self.uwb_model = UWBModel(inp_dim, hidden_dim, width)
         self.t1 = t1
         self.t0 = 0
+        self.tol = tol
 
     @property
     def device(self):
@@ -22,7 +24,7 @@ class CNF(nn.Module):
 
     @property
     def base_distribution(self):
-        return MultivariateNormal(torch.zeros(2, device=self.device), torch.eye(2, device=self.device))
+        return MultivariateNormal(torch.zeros(self.inp_dim, device=self.device), torch.eye(self.inp_dim, device=self.device))
 
     @staticmethod
     def get_dz_dt(z, u, w, b):
@@ -66,7 +68,7 @@ class CNF(nn.Module):
             self,
             (x, logdet_1),
             torch.FloatTensor([self.t1, self.t0]).to(self.device),
-            atol=1e-5, rtol=1e-5, method="dopri5"
+            atol=self.tol, rtol=self.tol, method="dopri5"
         )
         z_0, logdet_0 = z_steps[-1], logdet_steps[-1]
 
