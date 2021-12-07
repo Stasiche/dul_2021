@@ -56,7 +56,7 @@ class AFVAE(nn.Module):
 
         rec_loss = F.mse_loss(rec_batch, batch.detach(), reduction='none')
         rec_loss = rec_loss.view(len(batch), -1).sum(dim=1).mean()
-        enc_log_prob = -0.5 * np.log(2 * np.pi) - log_sigma - 0.5 * (z - mu) ** 2 * torch.exp(-2 * log_sigma)
+        enc_log_prob = Normal(mu, log_sigma.exp()).log_prob(z)
 
         z = z.squeeze()
         mu, log_sigma = torch.chunk(self.made(z), 2, dim=1)
