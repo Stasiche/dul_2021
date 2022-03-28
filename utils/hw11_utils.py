@@ -130,6 +130,7 @@ def plot_training(losses, title='Losses'):
     plt.title(title)
     plt.xlabel('Iteration')
     plt.ylabel('Loss')
+    plt.show()
 
 
 def q1_results(q1, accuracy=False):
